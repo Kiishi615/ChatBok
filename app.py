@@ -436,7 +436,7 @@ if st.session_state.vector_store is not None:
     if ask_button and question:
         logger.info(f"User asked: {question}")
         
-        with st.spinner("🤔 Thinking..."):
+        with st.spinner(" Thinking..."):
             response = get_rag_response(
                 question,
                 st.session_state.vector_store,
@@ -468,9 +468,9 @@ if st.session_state.vector_store is not None:
         for i, chat in enumerate(reversed(st.session_state.chat_history)):
             idx = len(st.session_state.chat_history) - i
             with st.container():
-                st.markdown(f"**🙋 Q{idx}:** {chat['question']}")
-                st.markdown(f"**🤖 A:** {chat['answer']}")
-                st.caption(f"⏰ {chat.get('timestamp', 'N/A')} | 🧠 {chat.get('model', 'N/A')}")
+                st.markdown(f"** Q{idx}:** {chat['question']}")
+                st.markdown(f"** A:** {chat['answer']}")
+                st.caption(f" {chat.get('timestamp', 'N/A')} |  {chat.get('model', 'N/A')}")
                 st.divider()
 
 else:
@@ -482,22 +482,9 @@ else:
 # ============================================
 
 st.markdown("---")
-col1, col2, col3 = st.columns(3)
+col1 = st.columns()
 with col1:
     st.markdown("Built with ❤️ using LangChain & Streamlit")
-with col2:
-    st.markdown(f"📅 {datetime.now().strftime('%Y-%m-%d')}")
-with col3:
-    if st.button("📋 View Logs"):
-        try:
-            log_file = Path("logs") / f"app_{datetime.now().strftime('%Y%m%d')}.log"
-            if log_file.exists():
-                with open(log_file, 'r') as f:
-                    logs = f.read()
-                st.text_area("Application Logs", logs, height=300)
-            else:
-                st.info("No logs available for today")
-        except Exception as e:
-            st.error(f"Could not read logs: {e}")
+
 
 logger.debug("App render completed")
