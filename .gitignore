@@ -1,6 +1,5 @@
 # Secrets
 .env
-.env.*
 *.key
 
 # Python junk (optional but good)
