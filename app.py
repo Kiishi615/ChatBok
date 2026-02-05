@@ -471,3 +471,4 @@ st.markdown("Built with ❤️ using LangChain & Streamlit")
 
 
 logger.debug("App render completed")
+
