@@ -150,9 +150,7 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
     logger.debug("Initialized chat_history in session state")
 
-if "processing_stats" not in st.session_state:
-    st.session_state.processing_stats = {}
-    logger.debug("Initialized processing_stats in session state")
+
 
 # ============================================
 # SIDEBAR CONFIGURATION
@@ -186,13 +184,7 @@ with st.sidebar:
         step=50
     )
     logger.debug(f"Chunk settings - Size: {chunk_size}, Overlap: {chunk_overlap}")
-    
-    if st.session_state.processing_stats:
-        st.subheader("📊 Processing Stats")
-        stats = st.session_state.processing_stats
-        st.metric("Total Pages", stats.get("pages", "N/A"))
-        st.metric("Total Chunks", stats.get("chunks", "N/A"))
-        st.metric("Processing Time", f"{stats.get('time', 0):.2f}s")
+
     
     st.divider()
     
@@ -397,14 +389,7 @@ if uploaded_file is not None:
                 st.session_state.chat_history = []
                 
                 st.success(f"✅ Successfully processed {uploaded_file.name}")
-                
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("📄 Pages", stats["pages"])
-                with col2:
-                    st.metric("🧩 Chunks", stats["chunks"])
-                with col3:
-                    st.metric("⏱️ Time", f"{stats['time']:.2f}s")
+
                     
                 logger.info(f"File {uploaded_file.name} ready for questioning")
             else:
@@ -474,7 +459,7 @@ if st.session_state.vector_store is not None:
                 st.divider()
 
 else:
-    st.info("👆 Please upload a PDF file to get started!")
+    st.info(" Please upload a PDF file to get started!")
     logger.debug("Waiting for PDF upload")
 
 # ============================================
@@ -482,7 +467,7 @@ else:
 # ============================================
 
 st.markdown("---")
-col1 = st.columns()
+col1 = st.columns(3)
 with col1:
     st.markdown("Built with ❤️ using LangChain & Streamlit")
 
