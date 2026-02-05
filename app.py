@@ -1,22 +1,33 @@
+# ============================================
+# SQLITE FIX - MUST BE FIRST
+# ============================================
+# Fix for Streamlit Cloud SQLite version issues
+import sys
+
+try:
+    __import__('pysqlite3')
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ImportError:
+    pass
+
+# ============================================
+# IMPORTS
+# ============================================
 import streamlit as st
 from langchain_anthropic import ChatAnthropic
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_community.vectorstores import FAISS
 from dotenv import load_dotenv
 import os
 import tempfile
 import logging
 from datetime import datetime
 from pathlib import Path
-import chromadb
-from chromadb.config import Settings
-import uuid
-import shutil
 
 # ============================================
 # LOGGING CONFIGURATION
@@ -91,50 +102,6 @@ def validate_api_keys():
     
     logger.info("All required API keys are present")
     return True, []
-
-# ============================================
-# CHROMADB CONFIGURATION - FIX FOR THE ERROR
-# ============================================
-
-def get_chroma_client():
-    """
-    Create a ChromaDB client with proper settings to avoid SQLite issues.
-    Uses ephemeral (in-memory) client to avoid persistence issues.
-    """
-    try:
-        # Use ephemeral client - no persistence, avoids SQLite issues
-        client = chromadb.EphemeralClient()
-        logger.debug("Created ephemeral ChromaDB client")
-        return client
-    except Exception as e:
-        logger.error(f"Error creating ChromaDB client: {e}")
-        raise
-
-def create_vector_store(chunks, embedding):
-    """
-    Create a vector store with proper ChromaDB configuration.
-    """
-    try:
-        # Generate unique collection name to avoid conflicts
-        collection_name = f"pdf_collection_{uuid.uuid4().hex[:8]}"
-        
-        # Create ephemeral client
-        client = get_chroma_client()
-        
-        # Create vector store with the client
-        vector_store = Chroma.from_documents(
-            documents=chunks,
-            embedding=embedding,
-            client=client,
-            collection_name=collection_name
-        )
-        
-        logger.info(f"Vector store created with collection: {collection_name}")
-        return vector_store
-        
-    except Exception as e:
-        logger.error(f"Error creating vector store: {e}", exc_info=True)
-        raise
 
 # ============================================
 # STREAMLIT PAGE CONFIGURATION
@@ -245,6 +212,27 @@ with st.sidebar:
         st.rerun()
 
 # ============================================
+# VECTOR STORE FUNCTIONS (USING FAISS)
+# ============================================
+
+def create_vector_store(chunks, embedding):
+    """
+    Create a FAISS vector store - more reliable than ChromaDB for Streamlit.
+    """
+    try:
+        logger.info("Creating FAISS vector store...")
+        vector_store = FAISS.from_documents(
+            documents=chunks,
+            embedding=embedding
+        )
+        logger.info("FAISS vector store created successfully")
+        return vector_store
+        
+    except Exception as e:
+        logger.error(f"Error creating vector store: {e}", exc_info=True)
+        raise
+
+# ============================================
 # PDF PROCESSING FUNCTIONS
 # ============================================
 
@@ -270,6 +258,9 @@ def process_pdf(uploaded_file, chunk_size, chunk_overlap):
         doc = loader.load()
         logger.info(f"PDF loaded successfully. Pages: {len(doc)}")
         
+        if len(doc) == 0:
+            raise ValueError("PDF appears to be empty or unreadable")
+        
         # Initialize embeddings
         logger.info("Initializing OpenAI embeddings...")
         embedding = OpenAIEmbeddings(model='text-embedding-3-small')
@@ -284,8 +275,11 @@ def process_pdf(uploaded_file, chunk_size, chunk_overlap):
         chunks = splitter.split_documents(doc)
         logger.info(f"Document split into {len(chunks)} chunks")
         
-        # Create vector store with proper ChromaDB configuration
-        logger.info("Creating vector store with Chroma...")
+        if len(chunks) == 0:
+            raise ValueError("No text chunks were created from the PDF")
+        
+        # Create vector store
+        logger.info("Creating vector store...")
         vector_store = create_vector_store(chunks, embedding)
         logger.info("Vector store created successfully")
         
@@ -303,7 +297,6 @@ def process_pdf(uploaded_file, chunk_size, chunk_overlap):
         
         logger.info(f"PDF processing completed in {processing_time:.2f} seconds")
         
-        # Store chunks and embedding for potential recreation
         return vector_store, stats, chunks, embedding
         
     except Exception as e:
@@ -313,22 +306,20 @@ def process_pdf(uploaded_file, chunk_size, chunk_overlap):
     finally:
         # Clean up temp file
         if tmp_file_path and os.path.exists(tmp_file_path):
-            os.unlink(tmp_file_path)
-            logger.debug("Cleaned up temporary file")
+            try:
+                os.unlink(tmp_file_path)
+                logger.debug("Cleaned up temporary file")
+            except Exception as e:
+                logger.warning(f"Could not delete temp file: {e}")
 
-def get_rag_response(question, chunks, embedding, model_option, temperature):
+def get_rag_response(question, vector_store, model_option, temperature):
     """
     Generate RAG response for a given question.
-    Recreates vector store each time to avoid stale connection issues.
     """
     start_time = datetime.now()
     logger.info(f"Processing question: {question[:100]}...")
     
     try:
-        # Recreate vector store to avoid stale connection issues
-        logger.debug("Recreating vector store for query...")
-        vector_store = create_vector_store(chunks, embedding)
-        
         # Initialize LLM
         logger.debug(f"Initializing LLM: {model_option} with temperature={temperature}")
         llm = ChatAnthropic(model=model_option, temperature=temperature)
@@ -428,7 +419,7 @@ if uploaded_file is not None:
 # QUESTION ANSWERING SECTION
 # ============================================
 
-if st.session_state.chunks is not None and st.session_state.embedding is not None:
+if st.session_state.vector_store is not None:
     st.divider()
     st.header("❓ Ask Questions")
     
@@ -448,8 +439,7 @@ if st.session_state.chunks is not None and st.session_state.embedding is not Non
         with st.spinner("🤔 Thinking..."):
             response = get_rag_response(
                 question,
-                st.session_state.chunks,
-                st.session_state.embedding,
+                st.session_state.vector_store,
                 model_option,
                 temperature
             )
