@@ -1,1 +1,10 @@
+# Secrets
 .env
+.env.*
+*.key
+
+# Python junk (optional but good)
+__pycache__/
+*.pyc
+.venv/
+venv/
