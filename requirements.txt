@@ -1,0 +1,10 @@
+streamlit
+langchain==0.2.16
+langchain-anthropic
+langchain-openai
+langchain-community
+langchain-chroma
+langchain-text-splitters
+chromadb
+python-dotenv
+pypdf
