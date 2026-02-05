@@ -467,9 +467,7 @@ else:
 # ============================================
 
 st.markdown("---")
-col1 = st.columns(3)
-with col1:
-    st.markdown("Built with ❤️ using LangChain & Streamlit")
+st.markdown("Built with ❤️ using LangChain & Streamlit")
 
 
 logger.debug("App render completed")
