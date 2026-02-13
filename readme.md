@@ -19,7 +19,7 @@ This application combines the power of Large Language Models (LLMs) with documen
 
 ### 🎬 Demo
 
-![App Screenshot](assets/demo-screenshot.png)
+!<img width="1890" height="996" alt="image" src="https://github.com/user-attachments/assets/79d3056f-0a20-45cb-bf11-7b15a5a74991" />
 
 *Upload any PDF → Ask questions → Get AI-powered answers*
 
