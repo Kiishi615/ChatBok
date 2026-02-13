@@ -1,6 +1,6 @@
 # Complete README.md
 
-```markdown
+
 # 📚 PDF Question Answering with RAG
 
 A powerful Streamlit application that enables users to upload PDF documents and ask questions about their content using Retrieval-Augmented Generation (RAG) powered by Claude AI.
@@ -604,4 +604,4 @@ Thumbs.db
 # Temp files
 *.tmp
 *.temp
-```
+
