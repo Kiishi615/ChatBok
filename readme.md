@@ -1,6 +1,3 @@
-# Complete README.md
-
-
 # 📚 PDF Question Answering with RAG
 
 A powerful Streamlit application that enables users to upload PDF documents and ask questions about their content using Retrieval-Augmented Generation (RAG) powered by Claude AI.
@@ -493,115 +490,9 @@ For issues and questions:
 <p align="center">
   <a href="#-pdf-question-answering-with-rag">Back to top ⬆️</a>
 </p>
-```
 
----
 
-## Additional Files to Create
 
-### `.env.example`
-
-```env
-# ============================================
-# API KEYS
-# ============================================
-
-# Anthropic API Key
-# Get yours at: https://console.anthropic.com/
-ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-# OpenAI API Key (used for embeddings)
-# Get yours at: https://platform.openai.com/api-keys
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
-
-### `LICENSE`
-
-```
-MIT License
-
-Copyright (c) 2024 Your Name
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-### `.streamlit/config.toml`
-
-```toml
-[theme]
-primaryColor = "#FF6B6B"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F0F2F6"
-textColor = "#262730"
-font = "sans serif"
-
-[server]
-maxUploadSize = 50
-enableXsrfProtection = true
-enableCORS = false
-
-[browser]
-gatherUsageStats = false
-```
-
-### `.gitignore`
-
-```gitignore
-# Environment
-.env
-venv/
-env/
-.venv/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-dist/
-*.egg-info/
-
-# Logs
-logs/
-*.log
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*.sublime-*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Streamlit
-.streamlit/secrets.toml
-
-# Vector stores
-*.faiss
-*.pkl
-
-# Temp files
 *.tmp
 *.temp
 
